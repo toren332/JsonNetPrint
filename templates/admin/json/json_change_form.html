@@ -1,0 +1,75 @@
+{% extends "base_generic.html" %}
+{% block content %}
+    <style>
+        .hide { position:absolute; top:-1px; left:-1px; width:1px; height:1px;visibility: hidden; }
+    </style>
+    <script>
+    function download( text) {
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', 'catalog.v2.json');
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+
+    }
+
+    $(document).ready(function(){
+        $('input[name=json]').prop( "disabled", true );
+
+        if ({{ update }} == '1'){
+            $('#create').addClass('hide');
+        }
+        else{
+            $('#download').addClass('hide');
+        }
+        function send(data){
+            $('input[name=json]').prop( "disabled", false );
+            $('input[name=json]').val(data);
+            $('#rest_form').submit();
+            $('input[name=json]').prop( "disabled", true );
+        }
+
+        $('#create').on ("click",function() {
+            $.ajax({
+                url: 'http://127.0.0.1:8000/json/create_json/',
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                    'version': $('input[name=version]').val()
+                },
+                dataType: "json",
+                success: function (data) {
+                    send(data);
+                },
+                error: function (xhr) {
+                    alert(JSON.parse(xhr.responseText)['ERROR']);
+                }
+            });
+
+        });
+        $('#download').on ("click",function() {
+            let inp = $('input[name=json]');
+            if (inp.val()!=null){
+                let str = JSON.stringify(JSON.parse(inp.val()), null, 2);
+                download(str);
+            }
+            else {
+                alert('previously click create')
+            }
+        })
+    })
+
+    </script>
+    <iframe name="hiddenFrame" class="hide"></iframe>
+    <form  id="rest_form" method="post" action="">
+        {% csrf_token %}
+        {{ form.as_table }}
+
+    </form>
+    <button id="create" class="button">Create</button>
+
+    <button id="download" class="button">Download</button>
+
+{% endblock content%}
