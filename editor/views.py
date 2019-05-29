@@ -132,9 +132,20 @@ class JsonViewSet(viewsets.ViewSet):
                         bordered_image_region['left'] = photo_variant_model.bordered_image_region_left
                         bordered_image_region['height'] = photo_variant_model.bordered_image_region_height
                         bordered_image_region['angle'] = photo_variant_model.bordered_image_region_angle
+
+                        text = {}
+                        text['region'] = {
+                            'top': photo_variant_model.text_region_top,
+                            'width': photo_variant_model.text_region_width,
+                            'left': photo_variant_model.text_region_left,
+                            'height': photo_variant_model.text_region_height,
+                            'angle': photo_variant_model.text_region_angle,
+                        }
+                        text['font_size'] = photo_variant_model.font_size
+
+                        template['text'] = text
                         template['image_region'] = image_region
                         template['bordered_image_region'] = bordered_image_region
-
                         template['default_frame_orientation'] = photo_variant_model.default_frame_orientation
                         template['is_orientation_switch_allowed'] = photo_variant_model.is_orientation_switch_allowed
                         template['is_colored'] = photo_variant_model.is_colored
@@ -206,6 +217,16 @@ class JsonViewSet(viewsets.ViewSet):
                             "height": book_page_cover_model.height,
                             "angle": book_page_cover_model.angle,
                         }
+                        text = {}
+                        text['region'] = {
+                            'top': book_page_cover_model.text_region_top,
+                            'width': book_page_cover_model.text_region_width,
+                            'left': book_page_cover_model.text_region_left,
+                            'height': book_page_cover_model.text_region_height,
+                            'angle': book_page_cover_model.text_region_angle,
+                        }
+                        text['font_size'] = book_page_cover_model.font_size
+                        book_cover_page['text'] = text
                         tmp_ += 1
                         page_cover_templates.append(book_cover_page)
                 variants = [{

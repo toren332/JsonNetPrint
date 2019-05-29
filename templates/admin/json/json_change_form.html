@@ -8,16 +8,12 @@
       var element = document.createElement('a');
       element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
       element.setAttribute('download', 'catalog.v2.json');
-
       element.style.display = 'none';
       document.body.appendChild(element);
       element.click();
-
     }
-
     $(document).ready(function(){
         $('input[name=json]').prop( "disabled", true );
-
         if ({{ update }} == '1'){
             $('#create').addClass('hide');
         }
@@ -30,7 +26,6 @@
             $('#rest_form').submit();
             $('input[name=json]').prop( "disabled", true );
         }
-
         $('#create').on ("click",function() {
             $.ajax({
                 url: 'http://127.0.0.1:8000/json/create_json/',
@@ -47,7 +42,6 @@
                     alert(JSON.parse(xhr.responseText)['ERROR']);
                 }
             });
-
         });
         $('#download').on ("click",function() {
             let inp = $('input[name=json]');
@@ -60,7 +54,6 @@
             }
         })
     })
-
     </script>
     <iframe name="hiddenFrame" class="hide"></iframe>
     <form  id="rest_form" method="post" action="">

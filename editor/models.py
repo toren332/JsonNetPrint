@@ -1,4 +1,5 @@
 from django.db import models
+from rest_framework import serializers
 # from django.core.exceptions import ValidationError
 
 
@@ -28,8 +29,15 @@ class ItemPhotoVariant(models.Model):
     uncutted_size_height = models.PositiveIntegerField(default=0)
     dpi = models.PositiveIntegerField(default=300)
     oms_id = models.CharField(max_length=256)
-    paper = models.CharField(max_length=256)
-    bordered_image = models.URLField(max_length=2048)
+    paper_CHOICES = (
+        ('standart_matte', 'standart_matte'),
+        ('standart_glossy', 'standart_glossy'),
+        ('premium_matte', 'premium_matte'),
+        ('premium_glossy', 'premium_glossy'),
+        ('metallic', 'metallic'),
+    )
+    paper = models.CharField(max_length=256, choices=paper_CHOICES)
+    bordered_image = models.URLField(max_length=2048, blank=True)
     image = models.URLField(max_length=2048)
     image_region_top = models.PositiveIntegerField(default=0)
     image_region_width = models.PositiveIntegerField(default=0)
@@ -41,10 +49,22 @@ class ItemPhotoVariant(models.Model):
     bordered_image_region_left = models.PositiveIntegerField(default=0)
     bordered_image_region_height = models.PositiveIntegerField(default=0)
     bordered_image_region_angle = models.FloatField(default=0)
-    default_frame_orientation = models.CharField(max_length=128)
+    text_region_top = models.PositiveIntegerField(default=0, blank=True)
+    text_region_width = models.PositiveIntegerField(default=0, blank=True)
+    text_region_left = models.PositiveIntegerField(default=0, blank=True)
+    text_region_height = models.PositiveIntegerField(default=0, blank=True)
+    text_region_angle = models.FloatField(default=0, blank=True)
+    font_size = models.FloatField(default=0, blank=True)
+    default_frame_orientation_CHOICES = (
+        ('top', 'top'),
+        ('bottom', 'bottom'),
+        ('left', 'left'),
+        ('right', 'right'),
+    )
+    default_frame_orientation = models.CharField(max_length=128, choices=default_frame_orientation_CHOICES)
     is_orientation_switch_allowed = models.BooleanField(default=True)
     is_colored = models.BooleanField(default=False)
-    price = models.PositiveIntegerField(default=0)
+    price = models.FloatField(default=0)
 
     def __str__(self):
         return self.oms_id + ' ' + self.paper
@@ -98,7 +118,12 @@ class CoverTemplate(models.Model):
     left = models.FloatField(default=0)
     height = models.FloatField(default=0)
     angle = models.PositiveIntegerField(default=0)
-
+    text_region_top = models.PositiveIntegerField(default=0, blank=True)
+    text_region_width = models.PositiveIntegerField(default=0, blank=True)
+    text_region_left = models.PositiveIntegerField(default=0, blank=True)
+    text_region_height = models.PositiveIntegerField(default=0, blank=True)
+    text_region_angle = models.FloatField(default=0, blank=True)
+    font_size = models.FloatField(default=0, blank=True)
     def __str__(self):
         return str(self.width) + ' ' + str(self.height)
 
@@ -107,7 +132,14 @@ class ItemBook(models.Model):
     """ItemBook"""
     base_variant_id = models.PositiveIntegerField(default=0)
     comment = models.CharField(max_length=2048)
-    paper = models.CharField(max_length=256)
+    paper_CHOICES = (
+        ('standart_matte', 'standart_matte'),
+        ('standart_glossy', 'standart_glossy'),
+        ('premium_matte', 'premium_matte'),
+        ('premium_glossy', 'premium_glossy'),
+        ('metallic', 'metallic'),
+    )
+    paper = models.CharField(max_length=256, choices=paper_CHOICES)
     additional_turn_price = models.PositiveIntegerField(default=0)
     variant_comment = models.CharField(max_length=2048)
     cover_dpi = models.PositiveIntegerField(default=300)
