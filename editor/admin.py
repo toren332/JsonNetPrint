@@ -7,15 +7,17 @@ admin.site.site_header = 'Net Print'
 admin.site.unregister(Group)
 admin.site.unregister(User)
 
-
+admin.site.register(models.WTLHA)
+admin.site.register(models.Text)
+admin.site.register(models.UpdateRequired)
+admin.site.register(models.BascetService)
 admin.site.register(models.Section)
 admin.site.register(models.Entries)
 admin.site.register(models.Page)
 admin.site.register(models.ItemPhotoVariant)
 admin.site.register(models.ItemPhoto)
 admin.site.register(models.ItemBook)
-admin.site.register(models.PageTemplate)
-admin.site.register(models.CoverTemplate)
+admin.site.register(models.Template)
 
 
 class JsonChangeForm(forms.ModelForm):

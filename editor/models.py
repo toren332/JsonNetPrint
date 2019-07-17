@@ -3,6 +3,28 @@ from rest_framework import serializers
 # from django.core.exceptions import ValidationError
 
 
+class WTLHA(models.Model):
+    width = models.FloatField(default=0)
+    top = models.FloatField(default=0)
+    left = models.FloatField(default=0)
+    height = models.FloatField(default=0)
+    angle = models.FloatField(default=0)
+
+    def __str__(self):
+        return f'w:{self.width}, t:{self.top}, l:{self.left}, h:{self.height}, a:{self.angle}'
+
+
+class Text(models.Model):
+    text_region_top = models.PositiveIntegerField(default=0)
+    text_region_width = models.PositiveIntegerField(default=0)
+    text_region_left = models.PositiveIntegerField(default=0)
+    text_region_height = models.PositiveIntegerField(default=0)
+    text_region_angle = models.FloatField(default=0)
+    font_size = models.FloatField(default=0)
+
+    def __str__(self):
+        return f'w:{self.text_region_width}, t:{self.text_region_top}, l:{self.text_region_left}, h:{self.text_region_height}, a:{self.text_region_angle}, f:{self.font_size}'
+
 class Section(models.Model):
     """Section"""
     title = models.CharField('title', max_length=40, blank=False)
@@ -11,67 +33,45 @@ class Section(models.Model):
         return self.title
 
 
-class Page(models.Model):
-    """Description pages"""
-    text = models.CharField(max_length=2048)
-    image = models.URLField(max_length=2048)
-    title = models.CharField(max_length=256)
-
-    def __str__(self):
-        return self.title
-
-
 class ItemPhotoVariant(models.Model):
-    """Photo item variant"""
-    size_width = models.PositiveIntegerField(default=0)
-    size_height = models.PositiveIntegerField(default=0)
-    uncutted_size_width = models.PositiveIntegerField(default=0)
-    uncutted_size_height = models.PositiveIntegerField(default=0)
-    dpi = models.PositiveIntegerField(default=300)
-    oms_id = models.CharField(max_length=256)
-    paper_CHOICES = (
-        ('standart_matte', 'standart_matte'),
-        ('standart_glossy', 'standart_glossy'),
-        ('premium_matte', 'premium_matte'),
-        ('premium_glossy', 'premium_glossy'),
-        ('metallic', 'metallic'),
-    )
-    paper = models.CharField(max_length=256, choices=paper_CHOICES)
-    bordered_image = models.URLField(max_length=2048, blank=True)
-    image = models.URLField(max_length=2048)
-    image_region_top = models.PositiveIntegerField(default=0)
-    image_region_width = models.PositiveIntegerField(default=0)
-    image_region_left = models.PositiveIntegerField(default=0)
-    image_region_height = models.PositiveIntegerField(default=0)
-    image_region_angle = models.FloatField(default=0)
-    bordered_image_region_top = models.PositiveIntegerField(default=0, blank=True)
-    bordered_image_region_width = models.PositiveIntegerField(default=0, blank=True)
-    bordered_image_region_left = models.PositiveIntegerField(default=0, blank=True)
-    bordered_image_region_height = models.PositiveIntegerField(default=0, blank=True)
-    bordered_image_region_angle = models.FloatField(default=0, blank=True)
-    text_region_top = models.PositiveIntegerField(default=0, blank=True)
-    text_region_width = models.PositiveIntegerField(default=0, blank=True)
-    text_region_left = models.PositiveIntegerField(default=0, blank=True)
-    text_region_height = models.PositiveIntegerField(default=0, blank=True)
-    text_region_angle = models.FloatField(default=0, blank=True)
-    font_size = models.FloatField(default=0, blank=True)
-    default_frame_orientation_CHOICES = (
-        ('top', 'top'),
-        ('bottom', 'bottom'),
-        ('left', 'left'),
-        ('right', 'right'),
-    )
-    default_frame_orientation = models.CharField(max_length=128, choices=default_frame_orientation_CHOICES)
-    is_orientation_switch_allowed = models.BooleanField(default=True)
-    is_colored = models.BooleanField(default=False)
-    price = models.FloatField(default=0)
+        """Photo item variant"""
+        size_width = models.FloatField(default=0)
+        size_height = models.FloatField(default=0)
+        uncutted_size_width = models.FloatField(default=0)
+        uncutted_size_height = models.FloatField(default=0)
+        dpi = models.PositiveIntegerField(default=300)
+        oms_id = models.CharField(max_length=256)
+        paper_CHOICES = (
+            ('standart_matte', 'standart_matte'),
+            ('standart_glossy', 'standart_glossy'),
+            ('premium_matte', 'premium_matte'),
+            ('premium_glossy', 'premium_glossy'),
+            ('metallic', 'metallic'),
+        )
+        paper = models.CharField(max_length=256, choices=paper_CHOICES)
+        bordered_image = models.URLField(max_length=2048, blank=False)
+        image = models.URLField(max_length=2048)
+        image_region = models.ForeignKey(WTLHA, on_delete=models.CASCADE, related_name='image_region')
+        bordered_image_region = models.ForeignKey(WTLHA, on_delete=models.CASCADE, related_name='bordered_image_region', blank=True, null=True)
+        text = models.ForeignKey(Text, on_delete=models.CASCADE)
+        default_frame_orientation_CHOICES = (
+            ('top', 'top'),
+            ('bottom', 'bottom'),
+            ('left', 'left'),
+            ('right', 'right'),
+        )
+        default_frame_orientation = models.CharField(max_length=128, choices=default_frame_orientation_CHOICES)
+        is_orientation_switch_allowed = models.BooleanField(default=True)
+        is_colored = models.BooleanField(default=False)
+        price = models.FloatField(default=0)
 
-    def __str__(self):
-        return self.oms_id + ' ' + self.paper
+        def __str__(self):
+            return self.oms_id + ' ' + self.paper
 
 
 class ItemPhoto(models.Model):
     """ItemPhoto"""
+
     comment = models.CharField(max_length=2048)
     item_photo_variant_0 = models.ForeignKey(ItemPhotoVariant, on_delete=models.CASCADE, related_name='v0', blank=False)
     item_photo_variant_1 = models.ForeignKey(ItemPhotoVariant, on_delete=models.CASCADE, related_name='v1', blank=True, null=True)
@@ -99,37 +99,19 @@ class ItemPhoto(models.Model):
         return self.comment
 
 
-class PageTemplate(models.Model):
-    """PageTemplate variant"""
-    width = models.FloatField(default=0)
-    top = models.FloatField(default=0)
-    left = models.FloatField(default=0)
-    height = models.FloatField(default=0)
-    angle = models.PositiveIntegerField(default=0)
+class Template(models.Model):
+        """CoverTemplate variant"""
 
-    def __str__(self):
-        return str(self.width) + ' ' + str(self.height)
+        wtlha = models.ForeignKey(WTLHA, on_delete=models.CASCADE, blank=True)
+        text = models.ForeignKey(Text, on_delete=models.CASCADE, blank=True)
 
-
-class CoverTemplate(models.Model):
-    """CoverTemplate variant"""
-    width = models.FloatField(default=0)
-    top = models.FloatField(default=0)
-    left = models.FloatField(default=0)
-    height = models.FloatField(default=0)
-    angle = models.PositiveIntegerField(default=0)
-    text_region_top = models.PositiveIntegerField(default=0, blank=True)
-    text_region_width = models.PositiveIntegerField(default=0, blank=True)
-    text_region_left = models.PositiveIntegerField(default=0, blank=True)
-    text_region_height = models.PositiveIntegerField(default=0, blank=True)
-    text_region_angle = models.FloatField(default=0, blank=True)
-    font_size = models.FloatField(default=0, blank=True)
-    def __str__(self):
-        return str(self.width) + ' ' + str(self.height)
+        def __str__(self):
+            return 'text' + ' and ' + 'WTLHA'
 
 
 class ItemBook(models.Model):
     """ItemBook"""
+
     base_variant_id = models.PositiveIntegerField(default=0)
     comment = models.CharField(max_length=2048)
     paper_CHOICES = (
@@ -140,7 +122,7 @@ class ItemBook(models.Model):
         ('metallic', 'metallic'),
     )
     paper = models.CharField(max_length=256, choices=paper_CHOICES)
-    additional_turn_price = models.PositiveIntegerField(default=0)
+    additional_turn_price = models.PositiveIntegerField(default=0, blank=True)
     variant_comment = models.CharField(max_length=2048)
     cover_dpi = models.PositiveIntegerField(default=300)
     cover_oms_id = models.CharField(max_length=2048)
@@ -148,51 +130,62 @@ class ItemBook(models.Model):
     page_dpi = models.PositiveIntegerField(default=300)
     min_page_count = models.PositiveIntegerField(default=20)
     max_page_count = models.PositiveIntegerField(default=120)
-    price = models.PositiveIntegerField(default=0, blank=True)
+    price = models.FloatField(default=0, blank=True)
 
-    uncutted_page_size_width = models.PositiveIntegerField(default=0)
-    uncutted_page_size_height = models.PositiveIntegerField(default=0)
-    cover_size_width = models.PositiveIntegerField(default=0)
-    cover_size_height = models.PositiveIntegerField(default=0)
-    uncutted_cover_size_width = models.PositiveIntegerField(default=0)
-    uncutted_cover_size_height = models.PositiveIntegerField(default=0)
-    cover_turn_size_width = models.PositiveIntegerField(default=0)
-    cover_turn_size_height = models.PositiveIntegerField(default=0)
-    uncutted_cover_turn_size_width = models.PositiveIntegerField(default=0)
-    uncutted_cover_turn_size_height = models.PositiveIntegerField(default=0)
-    page_size_width = models.PositiveIntegerField(default=0)
-    page_size_height = models.PositiveIntegerField(default=0)
+    uncutted_page_size_width = models.FloatField(default=0)
+    uncutted_page_size_height = models.FloatField(default=0)
+    cover_size_width = models.FloatField(default=0)
+    cover_size_height = models.FloatField(default=0)
+    uncutted_cover_size_width = models.FloatField(default=0)
+    uncutted_cover_size_height = models.FloatField(default=0)
+    cover_turn_size_width = models.FloatField(default=0)
+    cover_turn_size_height = models.FloatField(default=0)
+    uncutted_cover_turn_size_width = models.FloatField(default=0)
+    uncutted_cover_turn_size_height = models.FloatField(default=0)
+    page_size_width = models.FloatField(default=0)
+    page_size_height = models.FloatField(default=0)
 
-    item_book_page_0 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt0', blank=False)
-    item_book_page_1 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt1', blank=True, null=True)
-    item_book_page_2 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt2', blank=True, null=True)
-    item_book_page_3 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt3', blank=True, null=True)
-    item_book_page_4 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt4', blank=True, null=True)
-    item_book_page_5 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt5', blank=True, null=True)
-    item_book_page_6 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt6', blank=True, null=True)
-    item_book_page_7 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt7', blank=True, null=True)
-    item_book_page_8 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt8', blank=True, null=True)
-    item_book_page_9 = models.ForeignKey(PageTemplate, on_delete=models.CASCADE, related_name='pt9', blank=True, null=True)
+    item_book_page_0 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt0', blank=False)
+    item_book_page_1 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt1', blank=True, null=True)
+    item_book_page_2 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt2', blank=True, null=True)
+    item_book_page_3 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt3', blank=True, null=True)
+    item_book_page_4 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt4', blank=True, null=True)
+    item_book_page_5 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt5', blank=True, null=True)
+    item_book_page_6 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt6', blank=True, null=True)
+    item_book_page_7 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt7', blank=True, null=True)
+    item_book_page_8 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt8', blank=True, null=True)
+    item_book_page_9 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='pt9', blank=True, null=True)
     base_page_template_id = models.PositiveIntegerField(default=0)
 
-    item_book_cover_0 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct0', blank=False)
-    item_book_cover_1 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct1', blank=True, null=True)
-    item_book_cover_2 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct2', blank=True, null=True)
-    item_book_cover_3 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct3', blank=True, null=True)
-    item_book_cover_4 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct4', blank=True, null=True)
-    item_book_cover_5 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct5', blank=True, null=True)
-    item_book_cover_6 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct6', blank=True, null=True)
-    item_book_cover_7 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct7', blank=True, null=True)
-    item_book_cover_8 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct8', blank=True, null=True)
-    item_book_cover_9 = models.ForeignKey(CoverTemplate, on_delete=models.CASCADE, related_name='ct9', blank=True, null=True)
+    item_book_cover_0 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct0', blank=False)
+    item_book_cover_1 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct1', blank=True, null=True)
+    item_book_cover_2 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct2', blank=True, null=True)
+    item_book_cover_3 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct3', blank=True, null=True)
+    item_book_cover_4 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct4', blank=True, null=True)
+    item_book_cover_5 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct5', blank=True, null=True)
+    item_book_cover_6 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct6', blank=True, null=True)
+    item_book_cover_7 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct7', blank=True, null=True)
+    item_book_cover_8 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct8', blank=True, null=True)
+    item_book_cover_9 = models.ForeignKey(Template, on_delete=models.CASCADE, related_name='ct9', blank=True, null=True)
     base_cover_template_id = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.comment
 
 
+class Page(models.Model):
+        """Description pages"""
+        text = models.CharField(max_length=2048)
+        image = models.URLField(max_length=2048)
+        title = models.CharField(max_length=256)
+
+        def __str__(self):
+            return self.title
+
+
 class Entries(models.Model):
     """Section entries"""
+
     section = models.ForeignKey(Section, on_delete=models.CASCADE)
     id_name = models.CharField(max_length=256)
     subtitle = models.CharField(max_length=256)
@@ -214,6 +207,17 @@ class Entries(models.Model):
 
     def __str__(self):
         return self.id_name + '(' + self.section.title + ')'
+
+
+class UpdateRequired(models.Model):
+    title = models.CharField('title', max_length=250, blank=False)
+    text = models.CharField('text', max_length=1000, blank=False)
+    button = models.CharField('button', max_length=250, blank=False)
+    url = models.URLField(blank=False)
+
+
+class BascetService(models.Model):
+    url = models.URLField(blank=False)
 
 
 class Json(models.Model):

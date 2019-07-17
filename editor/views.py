@@ -19,57 +19,15 @@ class JsonViewSet(viewsets.ViewSet):
                 section['title'] = section_model.title
                 entries = []
                 for entry_model in models.Entries.objects.filter(section=section_model):
-                    entries.append(entry_model.id)
+                    entries.append(entry_model.id_name)
                 section['entries'] = entries
                 sections.append(section)
             entries = []
-            for entry_model in models.Entries.objects.all():
-                entry = {}
-                entry['id'] = entry_model.id_name
-                entry['subtitle'] = entry_model.subtitle
-                entry['title'] = entry_model.title
-                entry['cover_image'] = entry_model.cover_image
-                page_models_list = [
-                    entry_model.page_0,
-                    entry_model.page_1,
-                    entry_model.page_2,
-                    entry_model.page_3,
-                    entry_model.page_4,
-                    entry_model.page_5,
-                    entry_model.page_6,
-                    entry_model.page_7,
-                    entry_model.page_8,
-                    entry_model.page_9,
-                ]
-                pages = []
-                for page_model in page_models_list:
-                    if page_model:
-                        page = {}
-                        page['text'] = page_model.text
-                        page['title'] = page_model.title
-                        page['image'] = page_model.image
-                        pages.append(page)
-                entry['description'] = {'title': entry_model.description_title, 'pages': pages}
-
-                entry['id'] = entry_model.id_name
-                if entry_model.item_id_PHOTO_id is None and entry_model.item_id_BOOK_id is None:
-                    return Response({"ERROR": "no photo or book id in entries in" + str(entry_model.id_name)}, status=status.HTTP_409_CONFLICT)
-                else:
-                    if entry_model.item_id_PHOTO_id is not None and entry_model.item_id_BOOK_id is not None:
-                        return Response({"ERROR": "photo and book id in entries, choose one"},
-                                        status=status.HTTP_409_CONFLICT)
-                    else:
-                        if entry_model.item_id_PHOTO_id is not None:
-                            entry['item_id'] = entry_model.item_id_PHOTO_id
-                        else:
-                            entry['item_id'] = entry_model.item_id_BOOK_id
-
-                entries.append(entry)
+            """Тут """
             items = []
-            _ = 0
             for photo_model in models.ItemPhoto.objects.all():
                 item = {}
-                item['id'] = _
+                item['id'] = photo_model.id
                 item['comment'] = photo_model.comment
 
                 photo_model_variant_list = [
@@ -110,8 +68,8 @@ class JsonViewSet(viewsets.ViewSet):
                             'width': photo_variant_model.uncutted_size_width,
                             'height': photo_variant_model.uncutted_size_height
                         }
-                        photo_variant['id'] = tmp_
                         photo_variant['uncutted_size'] = uncutted_size
+                        photo_variant['id'] = tmp_
                         photo_variant['oms_id'] = photo_variant_model.oms_id
                         photo_variant['paper'] = photo_variant_model.paper
                         photo_variant['bordered_image'] = photo_variant_model.bordered_image
@@ -120,32 +78,33 @@ class JsonViewSet(viewsets.ViewSet):
                         photo_variant['price'] = {'price': photo_variant_model.price}
                         template = {}
                         image_region = {}
-                        image_region['top'] = photo_variant_model.image_region_top
-                        image_region['width'] = photo_variant_model.image_region_width
-                        image_region['left'] = photo_variant_model.image_region_left
-                        image_region['height'] = photo_variant_model.image_region_height
-                        image_region['angle'] = photo_variant_model.image_region_angle
+                        image_region['top'] = photo_variant_model.image_region.top
+                        image_region['width'] = photo_variant_model.image_region.width
+                        image_region['left'] = photo_variant_model.image_region.left
+                        image_region['height'] = photo_variant_model.image_region.height
+                        image_region['angle'] = photo_variant_model.image_region.angle
 
-                        bordered_image_region = {}
-                        bordered_image_region['top'] = photo_variant_model.bordered_image_region_top
-                        bordered_image_region['width'] = photo_variant_model.bordered_image_region_width
-                        bordered_image_region['left'] = photo_variant_model.bordered_image_region_left
-                        bordered_image_region['height'] = photo_variant_model.bordered_image_region_height
-                        bordered_image_region['angle'] = photo_variant_model.bordered_image_region_angle
+                        if photo_variant_model.bordered_image_region is not None:
+                            bordered_image_region = {}
+                            bordered_image_region['top'] = photo_variant_model.bordered_image_region.top
+                            bordered_image_region['width'] = photo_variant_model.bordered_image_region.width
+                            bordered_image_region['left'] = photo_variant_model.bordered_image_region.left
+                            bordered_image_region['height'] = photo_variant_model.bordered_image_region.height
+                            bordered_image_region['angle'] = photo_variant_model.bordered_image_region.angle
+                            template['bordered_image_region'] = bordered_image_region
 
                         text = {}
                         text['region'] = {
-                            'top': photo_variant_model.text_region_top,
-                            'width': photo_variant_model.text_region_width,
-                            'left': photo_variant_model.text_region_left,
-                            'height': photo_variant_model.text_region_height,
-                            'angle': photo_variant_model.text_region_angle,
+                            'top': photo_variant_model.text.text_region_top,
+                            'width': photo_variant_model.text.text_region_width,
+                            'left': photo_variant_model.text.text_region_left,
+                            'height': photo_variant_model.text.text_region_height,
+                            'angle': photo_variant_model.text.text_region_angle,
                         }
-                        text['font_size'] = photo_variant_model.font_size
+                        text['font_size'] = photo_variant_model.text.font_size
 
                         template['text'] = text
                         template['image_region'] = image_region
-                        template['bordered_image_region'] = bordered_image_region
                         template['default_frame_orientation'] = photo_variant_model.default_frame_orientation
                         template['is_orientation_switch_allowed'] = photo_variant_model.is_orientation_switch_allowed
                         template['is_colored'] = photo_variant_model.is_colored
@@ -155,10 +114,9 @@ class JsonViewSet(viewsets.ViewSet):
                 type['variants'] = photo_variants
                 item['type'] = type
                 items.append(item)
-                _ += 1
             for book_model in models.ItemBook.objects.all():
                 item = {}
-                item['id'] = _
+                item['id'] = book_model.id + models.ItemBook.objects.all().__len__()
                 item['comment'] = book_model.comment
 
                 type = {}
@@ -196,12 +154,22 @@ class JsonViewSet(viewsets.ViewSet):
                         book_page = {}
                         book_page['id'] = tmp_
                         book_page['image_region'] = {
-                            "top": book_page_model.top,
-                            "width": book_page_model.width,
-                            "left": book_page_model.left,
-                            "height": book_page_model.height,
-                            "angle": book_page_model.angle,
+                            "top": book_page_model.wtlha.top,
+                            "width": book_page_model.wtlha.width,
+                            "left": book_page_model.wtlha.left,
+                            "height": book_page_model.wtlha.height,
+                            "angle": book_page_model.wtlha.angle,
                         }
+                        text = {}
+                        text['region'] = {
+                            'top': book_page_model.text.text_region_top,
+                            'width': book_page_model.text.text_region_width,
+                            'left': book_page_model.text.text_region_left,
+                            'height': book_page_model.text.text_region_height,
+                            'angle': book_page_model.text.text_region_angle,
+                        }
+                        text['font_size'] = book_page_model.text.font_size
+                        book_page['text'] = text
                         tmp_ += 1
                         page_templates.append(book_page)
                 tmp_ = 0
@@ -211,21 +179,21 @@ class JsonViewSet(viewsets.ViewSet):
                         book_cover_page = {}
                         book_cover_page['id'] = tmp_
                         book_cover_page['image_region'] = {
-                            "top": book_page_cover_model.top,
-                            "width": book_page_cover_model.width,
-                            "left": book_page_cover_model.left,
-                            "height": book_page_cover_model.height,
-                            "angle": book_page_cover_model.angle,
+                            "top": book_page_cover_model.wtlha.top,
+                            "width": book_page_cover_model.wtlha.width,
+                            "left": book_page_cover_model.wtlha.left,
+                            "height": book_page_cover_model.wtlha.height,
+                            "angle": book_page_cover_model.wtlha.angle,
                         }
                         text = {}
                         text['region'] = {
-                            'top': book_page_cover_model.text_region_top,
-                            'width': book_page_cover_model.text_region_width,
-                            'left': book_page_cover_model.text_region_left,
-                            'height': book_page_cover_model.text_region_height,
-                            'angle': book_page_cover_model.text_region_angle,
+                            'top': book_page_cover_model.text.text_region_top,
+                            'width': book_page_cover_model.text.text_region_width,
+                            'left': book_page_cover_model.text.text_region_left,
+                            'height': book_page_cover_model.text.text_region_height,
+                            'angle': book_page_cover_model.text.text_region_angle,
                         }
-                        text['font_size'] = book_page_cover_model.font_size
+                        text['font_size'] = book_page_cover_model.text.font_size
                         book_cover_page['text'] = text
                         tmp_ += 1
                         page_cover_templates.append(book_cover_page)
@@ -264,7 +232,7 @@ class JsonViewSet(viewsets.ViewSet):
                         'width': book_model.page_size_width,
                         'height': book_model.page_size_height,
                     },
-                    'price':{
+                    'price': {
                         'price': book_model.price
                     }
                 }]
@@ -274,10 +242,74 @@ class JsonViewSet(viewsets.ViewSet):
 
                 item['type'] = type
                 items.append(item)
-                _ += 1
+            for entry_model in models.Entries.objects.all():
+                entry = {}
+                entry['id'] = entry_model.id_name
+                entry['subtitle'] = entry_model.subtitle
+                entry['title'] = entry_model.title
+                entry['cover_image'] = entry_model.cover_image
+                page_models_list = [
+                    entry_model.page_0,
+                    entry_model.page_1,
+                    entry_model.page_2,
+                    entry_model.page_3,
+                    entry_model.page_4,
+                    entry_model.page_5,
+                    entry_model.page_6,
+                    entry_model.page_7,
+                    entry_model.page_8,
+                    entry_model.page_9,
+                ]
+                pages = []
+                for page_model in page_models_list:
+                    if page_model:
+                        page = {}
+                        page['text'] = page_model.text
+                        page['title'] = page_model.title
+                        page['image'] = page_model.image
+                        pages.append(page)
+                entry['description'] = {'title': entry_model.description_title, 'pages': pages}
+
+                entry['id'] = entry_model.id_name
+                if entry_model.item_id_PHOTO_id is None and entry_model.item_id_BOOK_id is None:
+                    return Response({"ERROR": "no photo or book id in entries in" + str(entry_model.id_name)},
+                                    status=status.HTTP_409_CONFLICT)
+                else:
+                    if entry_model.item_id_PHOTO_id is not None and entry_model.item_id_BOOK_id is not None:
+                        return Response({"ERROR": "photo and book id in entries, choose one"},
+                                        status=status.HTTP_409_CONFLICT)
+                    else:
+                        if entry_model.item_id_PHOTO_id is not None:
+                            entry['item_id'] = entry_model.item_id_PHOTO_id
+                        else:
+                            entry['item_id'] = entry_model.item_id_BOOK_id + models.ItemBook.objects.all().__len__()
+
+                entries.append(entry)
+
             response['items'] = items
             response['entries'] = entries
             response['sections'] = sections
+            if models.BascetService.objects.all().__len__() > 1:
+                Response({"ERROR": "BascetService more then one, please delete other"},
+                         status=status.HTTP_409_CONFLICT)
+            elif models.BascetService.objects.all().__len__() == 0:
+                Response({"ERROR": "There is no BascetService, please add it"},
+                         status=status.HTTP_409_CONFLICT)
+            else:
+                response['basket_service_url'] = models.BascetService.objects.all()[0].url
+            if models.UpdateRequired.objects.all().__len__() > 1:
+                Response({"ERROR": "UpdateRequired more then one, please delete other"},
+                         status=status.HTTP_409_CONFLICT)
+            elif models.UpdateRequired.objects.all().__len__() == 0:
+                Response({"ERROR": "There is no UpdateRequired, please add it"},
+                         status=status.HTTP_409_CONFLICT)
+            else:
+                update_required_model = models.UpdateRequired.objects.all()[0]
+                update_required = {}
+                update_required['title'] = update_required_model.title
+                update_required['text'] = update_required_model.text
+                update_required['button'] = update_required_model.button
+                update_required['url'] = update_required_model.url
+                response['UpdateRequired'] = update_required
 
         return Response(str(json.dumps(response)), status=status.HTTP_201_CREATED)
-

@@ -21,7 +21,7 @@
             <a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
         </caption>
         {% for model in app.models %}
-            {% if model.object_name|lower  != "page" and  model.object_name|lower  != "pagetemplate"  and model.object_name|lower  != "itemphotovariant" and model.object_name|lower  != "covertemplate" %}
+            {% if model.object_name|lower  != "page" and  model.object_name|lower  != "template"  and model.object_name|lower  != "itemphotovariant" and model.object_name|lower  != "covertemplate" and model.object_name|lower  != "wtlha" and model.object_name|lower  != "text"%}
                 <tr class="model-{{ model.object_name|lower }}">
                 {% if model.admin_url %}
                     <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
