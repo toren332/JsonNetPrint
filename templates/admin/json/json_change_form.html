@@ -28,7 +28,7 @@
         }
         $('#create').on ("click",function() {
             $.ajax({
-                url: 'http://127.0.0.1:8000/json/create_json/',
+                url: 'http://{{ request.get_host }}/json/create_json/',
                 type: "POST",
                 data: {
                     csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
